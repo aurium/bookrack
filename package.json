@@ -1,0 +1,31 @@
+{
+  "name": "bookrack",
+  "version": "0.0.1",
+  "description": "Knex and Bookshelf Abstraction Layer",
+  "homepage": "https://github.com/aurium/bookrack#readme",
+  "keywords": [
+    "datamapper",
+    "orm"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cat src/*.coffee | node_modules/.bin/coffee -cs > index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aurium/bookrack.git"
+  },
+  "author": "Aurélio A. Heckert <aurium@colivre.coop.br>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aurium/bookrack/issues"
+  },
+  "dependencies": {
+    "bookshelf": "^0.9.1",
+    "knex": "^0.9.0"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.10.0"
+  }
+}
