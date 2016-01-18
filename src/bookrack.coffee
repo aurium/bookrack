@@ -25,19 +25,21 @@ class Bookrack
         err.message = "ERROR when loading #{filePath}: #{err.message}"
         throw err
 
-  loadModelFile: (filePath, options={})->
+  loadModelFile: (filePath)->
     [dir..., fileName] = filePath.split pathSep
     dir.unshift '/' if pathSep is '/'
     dir = resolvePath dir...
     modName = fileName.replace moduleExtRE, ''
     klass = file2class modName
-    model = new Bookrack.Model this, require joinPath dir, modName
+    model = @defineModel require joinPath dir, modName
     unless klass is model.name
       console.error "WARNING: It is expected that module #{filePath}
                      to define a model named #{klass},
                      however it defines #{model.name}."
     model
 
+  defineModel: (confFunc)->
+    new Bookrack.Model this, confFunc
 
 ###
 fs = require 'fs'
