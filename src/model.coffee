@@ -6,6 +6,7 @@ buildModelInstanceProto = (model)->
     save: -> console.log 'TODO'
     set: (x)-> console.error "WARNING: you dont need to use `#{@$model.name}::set(#{x})`."
     get: (x)-> console.error "WARNING: you dont need to use `#{@$model.name}::get(#{x})`."
+    $attrs: {}
   }
   readOnly instanceProto, '$model', => model
   instanceProto
@@ -53,6 +54,7 @@ defineModelInstAttr = (instanceProto, protoProps, attr, column)->
   defInstAttr = (config)->
     config.enumerable = true
     Object.defineProperty instanceProto, attr, config
+    readOnly instanceProto.$attrs, attr, (-> column.type), true
   readOnlyW = -> console.error "WARNING: #{@$model.name}::#{attr} is read only."
   # TODO: register the attr type for future "Auto DB Builder"
   switch column.type

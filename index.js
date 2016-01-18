@@ -145,7 +145,8 @@
       },
       get: function(x) {
         return console.error("WARNING: you dont need to use `" + this.$model.name + "::get(" + x + ")`.");
-      }
+      },
+      $attrs: {}
     };
     readOnly(instanceProto, '$model', (function(_this) {
       return function() {
@@ -233,7 +234,10 @@
     var base, defInstAttr, get, readOnlyW, set;
     defInstAttr = function(config) {
       config.enumerable = true;
-      return Object.defineProperty(instanceProto, attr, config);
+      Object.defineProperty(instanceProto, attr, config);
+      return readOnly(instanceProto.$attrs, attr, (function() {
+        return column.type;
+      }), true);
     };
     readOnlyW = function() {
       return console.error("WARNING: " + this.$model.name + "::" + attr + " is read only.");

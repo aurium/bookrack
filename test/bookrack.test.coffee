@@ -2,10 +2,7 @@ should = require 'should'
 sinon = require 'sinon'
 builder = require '..'
 
-# Helper:
-stubArg = (obj, method, args...)-> sinon.stub(obj, method).withArgs args...
-
-memoryDBConf = { client: 'sqlite3', connection: { filename: ":memory:" } }
+{ stubArg, memoryDBConf } = require './helper'
 
 describe 'Bookrack class', ->
 
@@ -30,6 +27,10 @@ describe 'Bookrack class', ->
     db.defineModel -> model: 'Model01', tableName: 'table01', col1: @string
     db.defineModel -> model: 'Model02', tableName: 'table02', colA: @string
     Object.keys(db).should.be.deepEqual ['Model01', 'Model02']
+
+  it 'load model from file'
+
+  it 'notify user when model file name unmatch the model name'
 
   it 'Auto load models from dir', ->
     fs = require 'fs'
