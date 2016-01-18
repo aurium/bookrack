@@ -7,8 +7,12 @@ class Bookrack
 
   constructor: (options={})->
     unless options.connection?
-      throw new Error "You must to define a DB connection for Bookrack!"
-    knex = require('knex') options.connection
+      throw new Error "You must to define a DB connection,
+                       or a knex object for Bookrack!"
+    if options.connection.queryBuilder?
+      knex = options.connection
+    else
+      knex = require('knex') options.connection
     bookshelf = require('bookshelf') knex
     bookshelf.plugin 'registry'
     bookshelf.plugin 'virtuals'

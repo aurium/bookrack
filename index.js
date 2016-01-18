@@ -13,9 +13,13 @@
         options = {};
       }
       if (options.connection == null) {
-        throw new Error("You must to define a DB connection for Bookrack!");
+        throw new Error("You must to define a DB connection, or a knex object for Bookrack!");
       }
-      knex = require('knex')(options.connection);
+      if (options.connection.queryBuilder != null) {
+        knex = options.connection;
+      } else {
+        knex = require('knex')(options.connection);
+      }
       bookshelf = require('bookshelf')(knex);
       bookshelf.plugin('registry');
       bookshelf.plugin('virtuals');

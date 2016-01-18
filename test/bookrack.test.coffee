@@ -13,6 +13,11 @@ describe 'Bookrack class', ->
     db = builder connection: memoryDBConf
     db.should.be.instanceof builder.Bookrack
 
+  it 'Start with a knex object', ->
+    knex = require('knex') memoryDBConf
+    db = builder connection: knex
+    db.should.be.instanceof builder.Bookrack
+
   it 'Builds models', ->
     db = builder connection: memoryDBConf
     db.defineModel -> model: 'Model01', tableName: 'table01', col1: @string
