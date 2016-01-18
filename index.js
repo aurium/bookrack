@@ -51,11 +51,8 @@
       return results;
     };
 
-    Bookrack.prototype.loadModelFile = function(filePath, options) {
+    Bookrack.prototype.loadModelFile = function(filePath) {
       var dir, fileName, i, klass, modName, model, ref;
-      if (options == null) {
-        options = {};
-      }
       ref = filePath.split(pathSep), dir = 2 <= ref.length ? slice.call(ref, 0, i = ref.length - 1) : (i = 0, []), fileName = ref[i++];
       if (pathSep === '/') {
         dir.unshift('/');
@@ -63,11 +60,15 @@
       dir = resolvePath.apply(null, dir);
       modName = fileName.replace(moduleExtRE, '');
       klass = file2class(modName);
-      model = new Bookrack.Model(this, require(joinPath(dir, modName)));
+      model = this.defineModel(require(joinPath(dir, modName)));
       if (klass !== model.name) {
         console.error("WARNING: It is expected that module " + filePath + " to define a model named " + klass + ", however it defines " + model.name + ".");
       }
       return model;
+    };
+
+    Bookrack.prototype.defineModel = function(confFunc) {
+      return new Bookrack.Model(this, confFunc);
     };
 
     return Bookrack;
@@ -97,6 +98,8 @@
   module.exports = function(knexConfig, options) {
     return new Bookrack(knexConfig, options);
   };
+
+  module.exports.Bookrack = Bookrack;
 
   moduleExtRE = /\.(coffee|js)$/;
 
