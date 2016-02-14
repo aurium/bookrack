@@ -18,6 +18,8 @@ class Bookrack
     bookshelf.plugin 'virtuals'
     bookshelf.plugin 'visibility'
     readOnly this, '_bookshelf', => bookshelf
+    readOnly this, 'migrate', => @_bookshelf.knex.migrate
+    readOnly this, 'seed', => @_bookshelf.knex.seed
     @loadModelsFromDir options.modelsDir if options.modelsDir?
 
   loadModelsFromDir: (dirPath)->
@@ -44,6 +46,26 @@ class Bookrack
 
   defineModel: (confFunc)->
     new Bookrack.Model this, confFunc
+
+  hasPendingMigration: (callback)->
+    migrationDir = @migrate.config.directory
+    if migrationDir[0] isnt '/' and migrationDir[0..1] isnt 'C:'
+      console.error "WARNING: your `knexConfig.migrations.directory` is a relative
+                     path. This will be a problem! Use `path.resolve` on your
+                     config file."
+    @migrate.currentVersion()
+      .then (version)->
+        fs.readdir migrationDir, (err, list)=>
+          return callback err if err
+          numPendingMigrations = 0
+          for file in list
+            if moduleExtRE.test file
+              lastMigration = file.replace /_.*$/, ''
+              if not version? or version is 'none' or version < lastMigration
+                numPendingMigrations++
+          callback null, numPendingMigrations
+      .catch (err)->
+        callback err
 
 ###
 fs = require 'fs'

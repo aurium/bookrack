@@ -29,6 +29,16 @@
           return bookshelf;
         };
       })(this));
+      readOnly(this, 'migrate', (function(_this) {
+        return function() {
+          return _this._bookshelf.knex.migrate;
+        };
+      })(this));
+      readOnly(this, 'seed', (function(_this) {
+        return function() {
+          return _this._bookshelf.knex.seed;
+        };
+      })(this));
       if (options.modelsDir != null) {
         this.loadModelsFromDir(options.modelsDir);
       }
@@ -75,6 +85,37 @@
       return new Bookrack.Model(this, confFunc);
     };
 
+    Bookrack.prototype.hasPendingMigration = function(callback) {
+      var migrationDir;
+      migrationDir = this.migrate.config.directory;
+      if (migrationDir[0] !== '/' && migrationDir.slice(0, 2) !== 'C:') {
+        console.error("WARNING: your `knexConfig.migrations.directory` is a relative path. This will be a problem! Use `path.resolve` on your config file.");
+      }
+      return this.migrate.currentVersion().then(function(version) {
+        return fs.readdir(migrationDir, (function(_this) {
+          return function(err, list) {
+            var file, i, lastMigration, len, numPendingMigrations;
+            if (err) {
+              return callback(err);
+            }
+            numPendingMigrations = 0;
+            for (i = 0, len = list.length; i < len; i++) {
+              file = list[i];
+              if (moduleExtRE.test(file)) {
+                lastMigration = file.replace(/_.*$/, '');
+                if ((version == null) || version === 'none' || version < lastMigration) {
+                  numPendingMigrations++;
+                }
+              }
+            }
+            return callback(null, numPendingMigrations);
+          };
+        })(this));
+      })["catch"](function(err) {
+        return callback(err);
+      });
+    };
+
     return Bookrack;
 
   })();
@@ -105,7 +146,7 @@
 
   module.exports.Bookrack = Bookrack;
 
-  moduleExtRE = /\.(coffee|js)$/;
+  moduleExtRE = /\.(coffee|js|co|eg|iced|litcoffee|ls)$/;
 
   validModelNameER = /^[A-Z][a-zA-Z0-9_]*$/;
 

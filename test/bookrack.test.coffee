@@ -39,3 +39,4 @@ describe 'Bookrack class', ->
     sinon.mock(builder.Bookrack.prototype).expects('loadModelFile').twice()
     db = builder connection: memoryDBConf, modelsDir: ':somedir:'
 
+  it 'identify if has pending migrations'

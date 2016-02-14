@@ -1,5 +1,5 @@
 # Recognize valid model module extensions
-moduleExtRE = /\.(coffee|js)$/
+moduleExtRE = /\.(coffee|js|co|eg|iced|litcoffee|ls)$/
 validModelNameER = /^[A-Z][a-zA-Z0-9_]*$/
 
 # Define read-only attributes
