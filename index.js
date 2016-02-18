@@ -381,6 +381,9 @@
 
     Model.prototype["new"] = function(attributes) {
       var instance, obj;
+      if (attributes == null) {
+        attributes = {};
+      }
       instance = new this["_" + this.name + "Constructor"];
       if (attributes._previousAttributes) {
         obj = attributes;
@@ -406,10 +409,13 @@
       if (callback != null) {
         return new this._bookshelfModel(query).fetch().asCallback((function(_this) {
           return function(err, obj) {
-            if (err == null) {
+            if (err) {
+              return callback(err);
+            }
+            if (obj) {
               obj = _this["new"](obj);
             }
-            return callback(err, obj);
+            return callback(null, obj);
           };
         })(this));
       } else {

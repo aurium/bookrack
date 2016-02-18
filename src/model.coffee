@@ -110,7 +110,7 @@ Bookrack.Model = class Model
     # TODO: Load table structure to add columns as model instance attributes.
 
   # Build a model instance, witout saving it.
-  new: (attributes)->
+  new: (attributes={})->
     instance = new @["_#{@name}Constructor"]
     if attributes._previousAttributes
       obj = attributes
@@ -128,8 +128,9 @@ Bookrack.Model = class Model
   find: (query, callback)->
     if callback?
       new @_bookshelfModel(query).fetch().asCallback (err, obj)=>
-        obj = @new obj unless err?
-        callback err, obj
+        return callback err if err
+        obj = @new obj if obj
+        callback null, obj
     else
       # TODO promisse fashon
 
