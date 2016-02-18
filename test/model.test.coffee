@@ -6,7 +6,7 @@ knexBuilder = require 'knex'
 { stubArg, memoryDBConf } = require './helper'
 
 describe 'Model class', ->
-  knex = null
+  knex = db = null
 
   beforeEach (done)->
     @timeout 10e3
@@ -14,8 +14,10 @@ describe 'Model class', ->
     knex.schema.dropTableIfExists('tableA').then ->
       knex.schema.createTable 'tableA', (table)->
         table.increments('id').primary()
-        table.string('foo')
-      .then -> do done
+        table.string 'foo'
+      .then ->
+        db = do buildORM
+        do done
 
   buildORM = ->
     db = bookrackBuilder connection: knex
@@ -29,7 +31,6 @@ describe 'Model class', ->
   it 'build the described model interface on its intances', (done)->
     knex('tableA').insert(foo: 'bar').asCallback (err)->
       return done err if err
-      db = do buildORM
       db.ModelA.find foo: 'bar', (err, obj)->
         return done err if err
         obj.$attrs.should.be.deepEqual foo: 'column', things: 'hasMany'
@@ -37,9 +38,9 @@ describe 'Model class', ->
         do done
 
   it 'not crash when finding in empty table', (done)->
-    db = do buildORM
     db.ModelA.find foo: 'bar', (err, obj)->
-      console.error err
+      should.not.exist err
+      should.not.exist obj
       do done
 
   it 'extends the model instance interface with columns found in the db table'
