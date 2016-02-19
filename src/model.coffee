@@ -74,13 +74,15 @@ defineModelInstAttr = (instanceProto, protoProps, attr, column)->
       defInstAttr get: get, set: set
     when 'column'
       column.def.columnName ?= attr
-      get = ->
-        @_bookshelfModelInst.get column.def.columnName
-      set = (value)-> @_bookshelfModelInst.set column.def.columnName, value
-      defInstAttr get: get, set: set
+      defInstAttr columnPropertyConfig column.def.columnName
     else
       throw new Error "Unknown model attribute type \"#{type}\" for #{attr}."
 
+columnPropertyConfig = (columnName)->
+  get: ->
+    @_bookshelfModelInst.get columnName
+  set: (value)->
+    @_bookshelfModelInst.set columnName, value
 
 Bookrack.Model = class Model
 
@@ -91,12 +93,19 @@ Bookrack.Model = class Model
       throw new Error "\"#{name}\" is not a valid model name.
                        It shoud match #{validModelNameER}."
     readOnly this, 'name', => name
+    readOnly this, '_tableName', => protoProps.tableName
     # Append this model as a bookrack instance property:
     # (this allows bookrack instance to be a directory of models)
     readOnly bookrack, name, (=> this), true
     readOnly this, '_bookshelfModel', =>
       bookrack._bookshelf.model name, protoProps, staticProps
-    readOnly this, "_#{@name}Constructor", =>
+    # Load table structure to add columns as model instance attributes:
+    @columnInfo().then (columns)=>
+      for attr of columns
+        unless /(^|_)id$/i.test(attr) or instProto.$attrs[attr]?
+          Object.defineProperty instProto, attr, columnPropertyConfig attr
+          readOnly instProto.$attrs, attr, (-> 'column'), true
+    readOnly this, '_ModelInstConstructor', =>
       klass = (->)
       klass.prototype = instProto
       klass
@@ -107,15 +116,14 @@ Bookrack.Model = class Model
       get = if value.get? then value.get else value
       set = if value.set? then value.set else readOnlyW
       Object.defineProperty this, attr, get: get, set: set, enumerable: true
-    # TODO: Load table structure to add columns as model instance attributes.
 
   # Build a model instance, witout saving it.
   new: (attributes={})->
-    instance = new @["_#{@name}Constructor"]
-    if attributes._previousAttributes
+    if attributes._previousAttributes # comes from DB
       obj = attributes
     else
       obj = @_bookshelfModel attributes
+    instance = new @_ModelInstConstructor
     readOnly instance, '_bookshelfModelInst', => obj
     instance
 
@@ -124,6 +132,8 @@ Bookrack.Model = class Model
     instance = @new attributes
     do instance.save
     instance
+
+  columnInfo: -> do @$models._bookshelf.knex(@_tableName).columnInfo
 
   find: (query, callback)->
     if callback?
