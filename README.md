@@ -13,3 +13,4 @@ TODO
 * Auto DB Builder - Create all needed tables in an empty DB. (All `$defModel` data should do the job)
 * Knex Migration File Generator - useful as first migration. (All `$defModel` data should do the job)
 * Allow different data source definition to a model. (Means a different knex+bookshelf instance)
+* Use https://github.com/shelljs/shelljs#make-tool when npm scripts becomes not enough.
